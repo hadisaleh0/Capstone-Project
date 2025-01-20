@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Language Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Orbitron:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: #0a0a1f;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Updated Animated Background */
+      .animated-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(135deg, #0a0a1f, #1a1a3f);
+      }
+
+      .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.15;
+        filter: blur(60px);
+        animation: glow 4s infinite, float 6s infinite;
+      }
+
+      .shape-1 {
+        width: 300px;
+        height: 300px;
+        background: #00ff94;
+        top: -150px;
+        left: -150px;
+        animation-delay: 0s;
+      }
+
+      .shape-2 {
+        width: 400px;
+        height: 400px;
+        background: #0066ff;
+        bottom: -200px;
+        right: -200px;
+        animation-delay: -1s;
+      }
+
+      .shape-3 {
+        width: 200px;
+        height: 200px;
+        background: #ff00ff;
+        top: 50%;
+        left: 30%;
+        animation-delay: -2s;
+      }
+
+      .shape-4 {
+        width: 250px;
+        height: 250px;
+        background: #00ffff;
+        bottom: 30%;
+        right: 25%;
+        animation-delay: -3s;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        letter-spacing: 2px;
+      }
+
+      .header p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+      }
+
+      .video-section {
+        width: 100%;
+        max-width: 800px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .video-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 255, 255, 0.5),
+          transparent
+        );
+      }
+
+      .video-section:hover {
+        transform: translateY(-5px);
+      }
+
+      #videoFeed {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        background: #000;
+        aspect-ratio: 16/9;
+        object-fit: cover;
+      }
+
+      .controls {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00ff94, #00b8ff);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(0, 255, 148, 0.5);
+      }
+
+      .btn.stop {
+        background: linear-gradient(135deg, #ff0055, #ff00ff);
+        box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+      }
+
+      .btn.stop:hover {
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+      }
+
+      .prediction-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        width: 100%;
+        max-width: 600px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease;
+      }
+
+      .prediction-box:hover {
+        transform: translateY(-5px);
+      }
+
+      .prediction {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      }
+
+      #debugInfo {
+        color: rgba(255, 255, 255, 0.7);
+        margin: 10px 0;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+      }
+
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #00ff94;
+        display: inline-block;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(0, 255, 148, 0.7);
+        }
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 10px rgba(0, 255, 148, 0);
+        }
+        100% {
+          transform: scale(0.95);
+          box-shadow: 0 0 0 0 rgba(0, 255, 148, 0);
+        }
+      }
+
+      .home-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .home-btn:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .home-btn i {
+        color: #fff;
+        font-size: 24px;
+      }
+
+      /* Add particles container */
+      #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* Modern animations */
+      @keyframes glow {
+        0% {
+          filter: brightness(1) blur(60px);
+        }
+        50% {
+          filter: brightness(1.2) blur(40px);
+        }
+        100% {
+          filter: brightness(1) blur(60px);
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
+
+      .floating-element {
+        animation: glow 4s infinite, float 6s infinite;
+      }
+
+      .shape-1 {
+        animation-delay: 0s;
+      }
+      .shape-2 {
+        animation-delay: -1s;
+      }
+      .shape-3 {
+        animation-delay: -2s;
+      }
+      .shape-4 {
+        animation-delay: -3s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Add particles container -->
+    <div id="particles-js"></div>
+
+    <!-- Existing background -->
+    <div class="animated-background">
+      <div class="floating-element shape-1"></div>
+      <div class="floating-element shape-2"></div>
+      <div class="floating-element shape-3"></div>
+      <div class="floating-element shape-4"></div>
+    </div>
+
+    <a href="../../index.html" class="home-btn">
+      <i class="fas fa-home" style="font-size: 24px"></i>
+    </a>
+
+    <div class="container">
+      <div class="header">
+        <h1>Sign Language Detection</h1>
+        <p>Real-time sign language detection using AI</p>
+      </div>
+
+      <div class="video-section">
+        <img id="videoFeed" src="/video_feed" style="display: none" />
+        <div id="debugInfo">
+          Video Status: <span id="videoStatus">Not started</span>
+        </div>
+        <div class="controls">
+          <button class="btn" id="startBtn">
+            <i class="fas fa-video"></i>
+            Start Camera
+          </button>
+          <button
+            class="btn stop"
+            onclick="window.location.href='../../index.html'"
+          >
+            <i class="fas fa-times"></i>
+            Exit
+          </button>
+        </div>
+      </div>
+
+      <div class="prediction-box">
+        <div class="status-indicator"></div>
+        <span class="prediction" id="prediction">Waiting for camera...</span>
+      </div>
+    </div>
+
+    <script>
+      // First add the click handler
+      document
+        .getElementById("startBtn")
+        .addEventListener("click", function () {
+          const videoFeed = document.getElementById("videoFeed");
+          const prediction = document.getElementById("prediction");
+          const button = document.getElementById("startBtn");
+          const statusIndicator = document.querySelector(".status-indicator");
+          const videoStatus = document.getElementById("videoStatus");
+
+          if (videoFeed.style.display === "none") {
+            // Start camera
+            videoFeed.style.display = "block";
+            prediction.textContent = "Detecting signs...";
+            button.innerHTML = '<i class="fas fa-stop"></i> Stop Camera';
+            statusIndicator.style.background = "#00ff94";
+            videoStatus.textContent = "Starting...";
+
+            // Start new video feed
+            videoFeed.src = "/video_feed?" + new Date().getTime();
+
+            // Add error handling for video feed
+            videoFeed.onerror = function () {
+              videoStatus.textContent = "Error loading video feed";
+              prediction.textContent = "Camera error";
+              statusIndicator.style.background = "#ff0055";
+            };
+
+            videoFeed.onload = function () {
+              videoStatus.textContent = "Video feed active";
+            };
+          } else {
+            // Stop camera
+            videoFeed.style.display = "none";
+            prediction.textContent = "Camera stopped";
+            button.innerHTML = '<i class="fas fa-video"></i> Start Camera';
+            statusIndicator.style.background = "#ff0055";
+            videoStatus.textContent = "Stopped";
+            // Stop video feed
+            videoFeed.src = "";
+          }
+        });
+
+      // Initialize particles immediately
+      particlesJS("particles-js", {
+        particles: {
+          number: {
+            value: 80,
+            density: {
+              enable: true,
+              value_area: 800,
+            },
+          },
+          color: {
+            value: "#00ffff",
+          },
+          shape: {
+            type: "circle",
+          },
+          opacity: {
+            value: 0.5,
+            random: true,
+            anim: {
+              enable: true,
+              speed: 1,
+              opacity_min: 0.1,
+              sync: false,
+            },
+          },
+          size: {
+            value: 3,
+            random: true,
+            anim: {
+              enable: true,
+              speed: 2,
+              size_min: 0.1,
+              sync: false,
+            },
+          },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#00ffff",
+            opacity: 0.2,
+            width: 1,
+          },
+          move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out",
+            bounce: false,
+            attract: {
+              enable: true,
+              rotateX: 600,
+              rotateY: 1200,
+            },
+          },
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: {
+              enable: true,
+              mode: "repulse",
+            },
+            onclick: {
+              enable: true,
+              mode: "push",
+            },
+            resize: true,
+          },
+          modes: {
+            repulse: {
+              distance: 100,
+              duration: 0.4,
+            },
+            push: {
+              particles_nb: 4,
+            },
+          },
+        },
+        retina_detect: true,
+      });
+
+      // Add dynamic color change to particles
+      let hue = 0;
+      setInterval(() => {
+        hue = (hue + 1) % 360;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        if (window.pJSDom && window.pJSDom[0]) {
+          window.pJSDom[0].pJS.particles.color.value = color;
+          window.pJSDom[0].pJS.particles.line_linked.color = color;
+        }
+      }, 100);
+    </script>
+  </body>
+</html>
