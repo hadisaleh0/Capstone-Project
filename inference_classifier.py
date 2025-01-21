@@ -1,9 +1,8 @@
-
 import pickle
 import cv2
 import mediapipe as mp
 import numpy as np
-from flask import Flask, Response, send_from_directory
+from flask import Flask, Response, send_from_directory, send_file
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='projects/static')

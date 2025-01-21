@@ -243,7 +243,7 @@ document.getElementById("stopBtn").addEventListener("click", function () {
 });
 
 // Replace it with direct DOM access if needed
-let currentModel = "RGB"; // Default model
+let currentModel = ""; // Default model
 
 document.addEventListener("DOMContentLoaded", function () {
   // DOM Elements
@@ -253,74 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const pauseBtn = document.getElementById("pauseBtn");
   const stopBtn = document.getElementById("stopBtn");
   const muteBtn = document.getElementById("muteBtn");
-  const sidebarItems = document.querySelectorAll(".sidebar-menu-item");
-
-  // State
-  // let isPlaying = false;
-  // let isMuted = false;
-
-  // // Define functions first
-  // function startTranslation() {
-  //   if (!textInput.value.trim()) {
-  //     console.log("No text to translate");
-  //     return;
-  //   }
-  //   isPlaying = true;
-  //   startBtn.disabled = true;
-  //   pauseBtn.disabled = false;
-  //   stopBtn.disabled = false;
-  //   document.body.classList.add("recording");
-
-  //   console.log("Starting WebCam...");
-  // }
-
-  // function pauseTranslation() {
-  //   isPlaying = false;
-  //   startBtn.disabled = false;
-  //   pauseBtn.disabled = true;
-
-  //   // Here you would typically pause your translation animation/video
-  //   console.log("Pausing translation...");
-  // }
-
-  // function stopTranslation() {
-  //   isPlaying = false;
-  //   startBtn.disabled = false;
-  //   pauseBtn.disabled = true;
-  //   stopBtn.disabled = true;
-  //   textInput.value = "";
-  //   document.body.classList.remove("recording");
-
-  //   console.log("Stopping WebCam...");
-  // }
-
-  // function toggleMute() {
-  //   isMuted = !isMuted;
-  //   muteBtn.innerHTML = isMuted
-  //     ? '<i class="fas fa-volume-mute"></i>'
-  //     : '<i class="fas fa-volume-up"></i>';
-
-  //   // Here you would typically mute/unmute your video/audio
-  //   console.log("Toggle mute:", isMuted);
-  // }
-
-  // Then add event listeners
-  // startBtn.addEventListener("click", startTranslation);
-  // pauseBtn.addEventListener("click", pauseTranslation);
-  // stopBtn.addEventListener("click", stopTranslation);
-  // muteBtn.addEventListener("click", toggleMute);
-
-  // Sidebar navigation
-  sidebarItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      sidebarItems.forEach((i) => {
-        i.classList.remove("active");
-        i.style.transform = "translateX(0)";
-      });
-      item.classList.add("active");
-      item.style.transform = "translateX(5px)";
-    });
-  });
+  const sidebarItems = document.getElementById("SkinDetection");
 
   // Text input handler with debounce
   let timeout;
@@ -508,26 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!video1.paused && !video1.ended) {
             processCtx.drawImage(video1, 0, 0, width, height);
 
-            try {
-              let src = new cv.Mat(height, width, cv.CV_8UC4);
-              src.data.set(processCtx.getImageData(0, 0, width, height).data);
-              let dst = new cv.Mat(height, width, cv.CV_8UC1);
-
-              // Convert RGBA to BGR first
-              cv.cvtColor(src, src, cv.COLOR_RGBA2BGR);
-
-              // Now process with HSV model
-              HSVModel(src, dst);
-
-              // Show result
-              cv.imshow(skinMaskCanvas, dst);
-
-              // Clean up
-              src.delete();
-              dst.delete();
-            } catch (err) {
-              console.error("Error processing video frame:", err);
-            }
+            applySkinDetection(processCanvas, skinMaskCanvas);
           }
           requestAnimationFrame(processFrame);
         }
@@ -571,30 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Draw image to process canvas
         processCtx.drawImage(img1, 0, 0, width, height);
 
-        try {
-          // Create OpenCV matrices
-          let src = new cv.Mat(height, width, cv.CV_8UC4);
-          let dst = new cv.Mat(height, width, cv.CV_8UC1);
-
-          // Get image data
-          const imageData = processCtx.getImageData(0, 0, width, height);
-          src.data.set(imageData.data);
-
-          // Convert RGBA to BGR
-          cv.cvtColor(src, src, cv.COLOR_RGBA2BGR);
-
-          // Apply skin detection
-          HSVModel(src, dst);
-
-          // Display result on skinMaskCanvas
-          cv.imshow(skinMaskCanvas, dst);
-
-          // Clean up
-          src.delete();
-          dst.delete();
-        } catch (err) {
-          console.error("Error processing image:", err);
-        }
+        applySkinDetection(processCanvas, skinMaskCanvas);
       };
     }
 
@@ -842,5 +733,163 @@ function YCbCrModel(src, dst) {
   } catch (err) {
     console.error("Error in YCbCrModel:", err);
     throw err; // Re-throw to see the full error in console
+  }
+}
+
+// Add these functions for handling uploaded media
+window.processSkinDetectionForUploadedMedia = function (uploadedMedia) {
+  // Check if OpenCV is loaded
+  if (typeof cv === "undefined") {
+    showNotification("Waiting for OpenCV to load...");
+    return;
+  }
+
+  // Clear video output and create split view
+  const videoOutput = document.getElementById("video-output");
+  videoOutput.innerHTML = "";
+
+  // Create split container
+  const splitContainer = document.createElement("div");
+  splitContainer.className = "split-container";
+
+  // Create original view
+  const originalView = document.createElement("div");
+  originalView.className = "video-view";
+  originalView.innerHTML = `
+        <div class="video-label">Original</div>
+        <canvas id="originalCanvas"></canvas>
+    `;
+
+  // Create processed view
+  const processedView = document.createElement("div");
+  processedView.className = "video-view";
+  processedView.innerHTML = `
+        <div class="video-label">Skin Detection</div>
+        <canvas id="skinMask"></canvas>
+    `;
+
+  // Add views to container
+  splitContainer.appendChild(originalView);
+  splitContainer.appendChild(processedView);
+  videoOutput.appendChild(splitContainer);
+
+  // Get canvases
+  const originalCanvas = document.getElementById("originalCanvas");
+  const skinMaskCanvas = document.getElementById("skinMask");
+
+  // Set canvas contexts with willReadFrequently option
+  const ctxOriginal = originalCanvas.getContext("2d", {
+    willReadFrequently: true,
+  });
+
+  if (uploadedMedia instanceof HTMLVideoElement) {
+    processVideoSkinDetection(
+      uploadedMedia,
+      originalCanvas,
+      skinMaskCanvas,
+      ctxOriginal
+    );
+  } else if (uploadedMedia instanceof HTMLImageElement) {
+    processImageSkinDetection(
+      uploadedMedia,
+      originalCanvas,
+      skinMaskCanvas,
+      ctxOriginal
+    );
+  }
+};
+
+function processVideoSkinDetection(
+  video,
+  originalCanvas,
+  skinMaskCanvas,
+  ctxOriginal
+) {
+  // Set canvas dimensions
+  originalCanvas.width = video.videoWidth || 640;
+  originalCanvas.height = video.videoHeight || 480;
+  skinMaskCanvas.width = video.videoWidth || 640;
+  skinMaskCanvas.height = video.videoHeight || 480;
+
+  // Clone the video
+  const videoClone = video.cloneNode(true);
+  videoClone.style.display = "none";
+  document.getElementById("video-output").appendChild(videoClone);
+
+  // Process video frames
+  videoClone.onplay = function () {
+    function processFrame() {
+      if (!videoClone.paused && !videoClone.ended) {
+        // Draw original frame
+        ctxOriginal.drawImage(
+          videoClone,
+          0,
+          0,
+          originalCanvas.width,
+          originalCanvas.height
+        );
+
+        applySkinDetection(originalCanvas, skinMaskCanvas);
+        requestAnimationFrame(processFrame);
+      }
+    }
+    processFrame();
+  };
+  videoClone.play();
+}
+
+function processImageSkinDetection(
+  image,
+  originalCanvas,
+  skinMaskCanvas,
+  ctxOriginal
+) {
+  // Set canvas dimensions
+  originalCanvas.width = image.naturalWidth || 640;
+  originalCanvas.height = image.naturalHeight || 480;
+  skinMaskCanvas.width = image.naturalWidth || 640;
+  skinMaskCanvas.height = image.naturalHeight || 480;
+
+  // Draw original image
+  ctxOriginal.drawImage(
+    image,
+    0,
+    0,
+    originalCanvas.width,
+    originalCanvas.height
+  );
+
+  applySkinDetection(originalCanvas, skinMaskCanvas);
+}
+
+function applySkinDetection(sourceCanvas, destinationCanvas) {
+  try {
+    let src = cv.imread(sourceCanvas);
+    let dst = new cv.Mat();
+
+    // Apply selected skin detection model
+    switch (currentSkinModel) {
+      case "rgb":
+        window.RGBModel(src, dst);
+        break;
+      case "hsv":
+        window.HSVModel(src, dst);
+        break;
+      case "ycbcr":
+        window.YCbCrModel(src, dst);
+        break;
+      default:
+        window.HSVModel(src, dst);
+    }
+
+    // Show result
+    cv.imshow(destinationCanvas, dst);
+
+    // Clean up
+    src.delete();
+    dst.delete();
+  } catch (err) {
+    console.error("Error in skin detection processing:", err);
+    showNotification("Error processing media");
   }
 }

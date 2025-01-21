@@ -442,14 +442,14 @@ class ColorCorrection {
 
     img.onload = () => {
       // Set canvas dimensions to match image
-      this.canvasInput.width = img.width;
-      this.canvasInput.height = img.height;
-      this.canvasOutput.width = img.width;
-      this.canvasOutput.height = img.height;
+      this.canvasInput.width = 480;
+      this.canvasInput.height = 400;
+      this.canvasOutput.width = 480;
+      this.canvasOutput.height = 400;
 
       // Draw image and process
       const ctx = this.canvasInput.getContext("2d");
-      ctx.drawImage(img, 0, 0, img.width, img.height);
+      ctx.drawImage(img, 0, 0, 480, 400);
 
       try {
         let src = cv.imread(this.canvasInput);

@@ -26,7 +26,11 @@
         background: #0a0a1f;
         color: #fff;
         position: relative;
-        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
       }
 
       /* Updated Animated Background */
@@ -38,6 +42,7 @@
         height: 100%;
         z-index: -1;
         background: linear-gradient(135deg, #0a0a1f, #1a1a3f);
+        overflow: hidden;
       }
 
       .floating-element {
@@ -85,20 +90,22 @@
       }
 
       .container {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 30px;
-        padding: 40px 20px;
+        gap: 20px;
+        padding: 40px 20px 80px;
         max-width: 1200px;
         margin: 0 auto;
         position: relative;
         z-index: 1;
+        min-height: 100vh;
       }
 
       .header {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
       }
 
       h1 {
@@ -121,13 +128,15 @@
         max-width: 800px;
         background: rgba(255, 255, 255, 0.03);
         border-radius: 20px;
-        padding: 20px;
+        padding: 30px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         transition: transform 0.3s ease;
-        position: relative;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
       }
 
       .video-section::before {
@@ -151,10 +160,10 @@
 
       #videoFeed {
         width: 100%;
+        aspect-ratio: 16/9;
         border-radius: 12px;
         box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         background: #000;
-        aspect-ratio: 16/9;
         object-fit: cover;
       }
 
@@ -162,7 +171,7 @@
         display: flex;
         gap: 20px;
         justify-content: center;
-        margin-top: 20px;
+        margin-top: 15px;
       }
 
       .btn {
@@ -177,10 +186,11 @@
         align-items: center;
         gap: 8px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         text-transform: uppercase;
         letter-spacing: 1px;
         font-weight: 500;
+        backdrop-filter: blur(5px);
       }
 
       .btn:hover {
@@ -190,7 +200,6 @@
 
       .btn.stop {
         background: linear-gradient(135deg, #ff0055, #ff00ff);
-        box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
       }
 
       .btn.stop:hover {
@@ -198,20 +207,14 @@
       }
 
       .prediction-box {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(0, 0, 0, 0.7);
         padding: 20px;
         border-radius: 12px;
-        text-align: center;
-        width: 100%;
-        max-width: 600px;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease;
-      }
-
-      .prediction-box:hover {
-        transform: translateY(-5px);
+        width: fit-content;
+        min-width: 300px;
+        text-align: center;
+        margin-top: 20px;
       }
 
       .prediction {
@@ -222,10 +225,11 @@
       }
 
       #debugInfo {
-        color: rgba(255, 255, 255, 0.7);
-        margin: 10px 0;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 15px;
+        border-radius: 8px;
         font-size: 0.9rem;
-        letter-spacing: 0.5px;
+        margin-top: 10px;
       }
 
       .status-indicator {
@@ -287,6 +291,7 @@
         height: 100%;
         z-index: 0;
         pointer-events: none;
+        overflow: hidden;
       }
 
       /* Modern animations */
@@ -344,7 +349,13 @@
       <div class="floating-element shape-4"></div>
     </div>
 
-    <a href="../../index.html" class="home-btn">
+    <script>
+      function goHome() {
+        window.location.href = "/";
+      }
+    </script>
+
+    <a href="#" onclick="goHome()" class="home-btn">
       <i class="fas fa-home" style="font-size: 24px"></i>
     </a>
 
@@ -355,33 +366,24 @@
       </div>
 
       <div class="video-section">
-        <img id="videoFeed" src="/video_feed" style="display: none" />
         <div id="debugInfo">
           Video Status: <span id="videoStatus">Not started</span>
         </div>
+        <img id="videoFeed" src="/video_feed" style="display: none" />
         <div class="controls">
           <button class="btn" id="startBtn">
             <i class="fas fa-video"></i>
             Start Camera
           </button>
-          <button
-            class="btn stop"
-            onclick="window.location.href='../../index.html'"
-          >
-            <i class="fas fa-times"></i>
-            Exit
-          </button>
         </div>
-      </div>
-
-      <div class="prediction-box">
-        <div class="status-indicator"></div>
-        <span class="prediction" id="prediction">Waiting for camera...</span>
+        <div class="prediction-box">
+          <div class="status-indicator"></div>
+          <span class="prediction" id="prediction">Waiting for camera...</span>
+        </div>
       </div>
     </div>
 
     <script>
-      // First add the click handler
       document
         .getElementById("startBtn")
         .addEventListener("click", function () {
