@@ -26,11 +26,7 @@
         background: #0a0a1f;
         color: #fff;
         position: relative;
-        overflow-y: auto;
-        overflow-x: hidden;
         margin: 0;
-        display: flex;
-        flex-direction: column;
       }
 
       /* Updated Animated Background */
@@ -40,7 +36,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
+        z-index: -2;
         background: linear-gradient(135deg, #0a0a1f, #1a1a3f);
         overflow: hidden;
       }
@@ -90,7 +86,6 @@
       }
 
       .container {
-        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -100,7 +95,8 @@
         margin: 0 auto;
         position: relative;
         z-index: 1;
-        min-height: 100vh;
+        min-height: calc(100vh - 80px);
+        padding-top: 80px;
       }
 
       .header {
@@ -133,10 +129,11 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         transition: transform 0.3s ease;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
         gap: 25px;
+        position: relative;
+        z-index: 1;
       }
 
       .video-section::before {
@@ -160,7 +157,8 @@
 
       #videoFeed {
         width: 100%;
-        aspect-ratio: 16/9;
+        aspect-ratio: 4/3;
+        max-height: 70vh;
         border-radius: 12px;
         box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
         background: #000;
@@ -215,6 +213,9 @@
         min-width: 300px;
         text-align: center;
         margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       .prediction {
@@ -230,6 +231,8 @@
         border-radius: 8px;
         font-size: 0.9rem;
         margin-top: 10px;
+        position: relative;
+        z-index: 2;
       }
 
       .status-indicator {
@@ -259,7 +262,7 @@
 
       .home-btn {
         position: fixed;
-        top: 20px;
+        top: 90px;
         left: 20px;
         background: rgba(255, 255, 255, 0.03);
         padding: 12px;
@@ -289,7 +292,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 0;
+        z-index: -1;
         pointer-events: none;
         overflow: hidden;
       }
@@ -335,9 +338,107 @@
       .shape-4 {
         animation-delay: -3s;
       }
+
+      .sequence-display {
+        font-size: 1.8rem;
+        font-weight: 500;
+        color: #00ff94;
+        text-shadow: 0 0 10px rgba(0, 255, 148, 0.3);
+        letter-spacing: 2px;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      /* Navbar Styles */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 20px 40px;
+        background: rgba(10, 10, 31, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 9999;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.5rem;
+        color: #00ff94;
+        text-decoration: none;
+        text-shadow: 0 0 10px rgba(0, 255, 148, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        position: relative;
+      }
+
+      .nav-links a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        padding: 8px 16px;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav-links a::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: #00ff94;
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::before {
+        width: 80%;
+      }
+
+      .nav-links a:hover {
+        color: #00ff94;
+        background: rgba(0, 255, 148, 0.1);
+      }
+
+      .nav-links a.active {
+        background: rgba(0, 255, 148, 0.15);
+        color: #00ff94;
+      }
     </style>
   </head>
   <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <a href="/" class="logo">
+        <i class="fas fa-sign-language"></i>
+        SignLang AI
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/app">App</a>
+        <a href="http://127.0.0.1:5000" class="active">Live Detection</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </nav>
+
     <!-- Add particles container -->
     <div id="particles-js"></div>
 
@@ -355,7 +456,7 @@
       }
     </script>
 
-    <a href="#" onclick="goHome()" class="home-btn">
+    <a href="/" onclick="goHome()" class="home-btn">
       <i class="fas fa-home" style="font-size: 24px"></i>
     </a>
 
@@ -379,6 +480,7 @@
         <div class="prediction-box">
           <div class="status-indicator"></div>
           <span class="prediction" id="prediction">Waiting for camera...</span>
+          <div class="sequence-display" id="sequence">Sequence:</div>
         </div>
       </div>
     </div>
@@ -401,17 +503,42 @@
             statusIndicator.style.background = "#00ff94";
             videoStatus.textContent = "Starting...";
 
-            // Start new video feed
-            videoFeed.src = "/video_feed?" + new Date().getTime();
+            // Start new video feed with a cleanup function
+            let videoUrl = "/video_feed?" + new Date().getTime();
+            videoFeed.src = videoUrl;
 
-            // Add error handling for video feed
-            videoFeed.onerror = function () {
-              videoStatus.textContent = "Error loading video feed";
-              prediction.textContent = "Camera error";
-              statusIndicator.style.background = "#ff0055";
-            };
+            // Cleanup old video feed before starting new one
+            if (window.currentVideoFeed) {
+              window.currentVideoFeed.pause();
+              window.currentVideoFeed.src = "";
+            }
+            window.currentVideoFeed = videoFeed;
+
+            // Add error recovery for video feed
+            let reconnectAttempts = 0;
+            const maxReconnectAttempts = 3;
+
+            function handleVideoError() {
+              if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                console.log(
+                  `Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`
+                );
+
+                setTimeout(() => {
+                  videoFeed.src = "/video_feed?" + new Date().getTime();
+                }, 1000 * reconnectAttempts);
+              } else {
+                videoStatus.textContent = "Connection failed";
+                prediction.textContent = "Camera error";
+                statusIndicator.style.background = "#ff0055";
+              }
+            }
+
+            videoFeed.onerror = handleVideoError;
 
             videoFeed.onload = function () {
+              reconnectAttempts = 0;
               videoStatus.textContent = "Video feed active";
             };
           } else {
@@ -421,46 +548,30 @@
             button.innerHTML = '<i class="fas fa-video"></i> Start Camera';
             statusIndicator.style.background = "#ff0055";
             videoStatus.textContent = "Stopped";
-            // Stop video feed
-            videoFeed.src = "";
+            // Properly cleanup video feed
+            if (window.currentVideoFeed) {
+              window.currentVideoFeed.pause();
+              window.currentVideoFeed.src = "";
+              window.currentVideoFeed = null;
+            }
           }
         });
 
-      // Initialize particles immediately
+      // Initialize particles
       particlesJS("particles-js", {
         particles: {
-          number: {
-            value: 80,
-            density: {
-              enable: true,
-              value_area: 800,
-            },
-          },
-          color: {
-            value: "#00ffff",
-          },
-          shape: {
-            type: "circle",
-          },
+          number: { value: 40, density: { enable: true, value_area: 800 } },
+          color: { value: "#00ffff" },
+          shape: { type: "circle" },
           opacity: {
             value: 0.5,
             random: true,
-            anim: {
-              enable: true,
-              speed: 1,
-              opacity_min: 0.1,
-              sync: false,
-            },
+            anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false },
           },
           size: {
             value: 3,
             random: true,
-            anim: {
-              enable: true,
-              speed: 2,
-              size_min: 0.1,
-              sync: false,
-            },
+            anim: { enable: true, speed: 1, size_min: 0.1, sync: false },
           },
           line_linked: {
             enable: true,
@@ -471,46 +582,31 @@
           },
           move: {
             enable: true,
-            speed: 2,
+            speed: 1,
             direction: "none",
             random: true,
             straight: false,
             out_mode: "out",
             bounce: false,
-            attract: {
-              enable: true,
-              rotateX: 600,
-              rotateY: 1200,
-            },
+            attract: { enable: true, rotateX: 600, rotateY: 1200 },
           },
         },
         interactivity: {
           detect_on: "canvas",
           events: {
-            onhover: {
-              enable: true,
-              mode: "repulse",
-            },
-            onclick: {
-              enable: true,
-              mode: "push",
-            },
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
             resize: true,
           },
           modes: {
-            repulse: {
-              distance: 100,
-              duration: 0.4,
-            },
-            push: {
-              particles_nb: 4,
-            },
+            repulse: { distance: 100, duration: 0.4 },
+            push: { particles_nb: 4 },
           },
         },
         retina_detect: true,
       });
 
-      // Add dynamic color change to particles
+      // Dynamic color change for particles
       let hue = 0;
       setInterval(() => {
         hue = (hue + 1) % 360;
@@ -520,6 +616,33 @@
           window.pJSDom[0].pJS.particles.line_linked.color = color;
         }
       }, 100);
+
+      // Cleanup on page unload
+      window.addEventListener("beforeunload", function () {
+        // Stop the video feed before leaving
+        const videoFeed = document.getElementById("videoFeed");
+        if (window.currentVideoFeed) {
+          window.currentVideoFeed.pause();
+          window.currentVideoFeed.src = "";
+          window.currentVideoFeed = null;
+        }
+
+        // Hide video feed and update UI
+        videoFeed.style.display = "none";
+        document.getElementById("prediction").textContent = "Camera stopped";
+        document.getElementById("startBtn").innerHTML =
+          '<i class="fas fa-video"></i> Start Camera';
+        document.querySelector(".status-indicator").style.background =
+          "#ff0055";
+        document.getElementById("videoStatus").textContent = "Stopped";
+
+        if (window.pJSDom && window.pJSDom[0]) {
+          window.pJSDom[0].pJS.fn.vendors.destroypJS();
+        }
+
+        // Send cleanup request to server
+        fetch("/video_feed", { method: "HEAD" }).catch(() => {});
+      });
     </script>
   </body>
 </html>
