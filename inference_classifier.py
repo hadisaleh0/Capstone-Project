@@ -9,6 +9,7 @@ import time
 from flask import Flask, Response, send_from_directory, send_file
 from flask_cors import CORS
 from flask import Flask, render_template
+import os
 
 
 
@@ -278,27 +279,13 @@ def test_realtime_labels():
 
 @app.route('/')
 def index():
-    return send_from_directory('projects/static', 'live-detection.html')  # Look for index.html in current directory
+    return send_from_directory('projects/static', 'live-detection.html')
 
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-@app.route('/app')
-def app_page():
-    return render_template('index.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-# @app.route('/live-detection')
-# def live_detection():
-#     return send_from_directory('projects/static', 'live-detection.html')
+@app.route('/<path:filename>')
+def serve_static(filename):
+    if os.path.exists(os.path.join('projects/static', filename)):
+        return send_from_directory('projects/static', filename)
+    return send_from_directory('.', filename)
 
 @app.route('/video_feed')
 def video_feed():

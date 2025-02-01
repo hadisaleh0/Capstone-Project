@@ -426,16 +426,16 @@
   <body>
     <!-- Navigation -->
     <nav class="navbar">
-      <a href="/" class="logo">
+      <a href="/home.html" class="logo">
         <i class="fas fa-sign-language"></i>
         SignLang AI
       </a>
       <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/app">App</a>
+        <a href="/home.html">Home</a>
+        <a href="/index.html">App</a>
         <a href="http://127.0.0.1:5000" class="active">Live Detection</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
       </div>
     </nav>
 
@@ -452,11 +452,11 @@
 
     <script>
       function goHome() {
-        window.location.href = "/";
+        window.location.href = "/home.html";
       }
     </script>
 
-    <a href="/" onclick="goHome()" class="home-btn">
+    <a href="/home.html" onclick="goHome()" class="home-btn">
       <i class="fas fa-home" style="font-size: 24px"></i>
     </a>
 
@@ -503,42 +503,17 @@
             statusIndicator.style.background = "#00ff94";
             videoStatus.textContent = "Starting...";
 
-            // Start new video feed with a cleanup function
-            let videoUrl = "/video_feed?" + new Date().getTime();
-            videoFeed.src = videoUrl;
+            // Start new video feed
+            videoFeed.src = "/video_feed?" + new Date().getTime();
 
-            // Cleanup old video feed before starting new one
-            if (window.currentVideoFeed) {
-              window.currentVideoFeed.pause();
-              window.currentVideoFeed.src = "";
-            }
-            window.currentVideoFeed = videoFeed;
-
-            // Add error recovery for video feed
-            let reconnectAttempts = 0;
-            const maxReconnectAttempts = 3;
-
-            function handleVideoError() {
-              if (reconnectAttempts < maxReconnectAttempts) {
-                reconnectAttempts++;
-                console.log(
-                  `Attempting to reconnect... (${reconnectAttempts}/${maxReconnectAttempts})`
-                );
-
-                setTimeout(() => {
-                  videoFeed.src = "/video_feed?" + new Date().getTime();
-                }, 1000 * reconnectAttempts);
-              } else {
-                videoStatus.textContent = "Connection failed";
-                prediction.textContent = "Camera error";
-                statusIndicator.style.background = "#ff0055";
-              }
-            }
-
-            videoFeed.onerror = handleVideoError;
+            // Add error handling for video feed
+            videoFeed.onerror = function () {
+              videoStatus.textContent = "Error loading video feed";
+              prediction.textContent = "Camera error";
+              statusIndicator.style.background = "#ff0055";
+            };
 
             videoFeed.onload = function () {
-              reconnectAttempts = 0;
               videoStatus.textContent = "Video feed active";
             };
           } else {
@@ -548,30 +523,26 @@
             button.innerHTML = '<i class="fas fa-video"></i> Start Camera';
             statusIndicator.style.background = "#ff0055";
             videoStatus.textContent = "Stopped";
-            // Properly cleanup video feed
-            if (window.currentVideoFeed) {
-              window.currentVideoFeed.pause();
-              window.currentVideoFeed.src = "";
-              window.currentVideoFeed = null;
-            }
+            // Stop video feed
+            videoFeed.src = "";
           }
         });
 
       // Initialize particles
       particlesJS("particles-js", {
         particles: {
-          number: { value: 40, density: { enable: true, value_area: 800 } },
+          number: { value: 80, density: { enable: true, value_area: 800 } },
           color: { value: "#00ffff" },
           shape: { type: "circle" },
           opacity: {
             value: 0.5,
             random: true,
-            anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false },
+            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false },
           },
           size: {
             value: 3,
             random: true,
-            anim: { enable: true, speed: 1, size_min: 0.1, sync: false },
+            anim: { enable: true, speed: 2, size_min: 0.1, sync: false },
           },
           line_linked: {
             enable: true,
@@ -582,7 +553,7 @@
           },
           move: {
             enable: true,
-            speed: 1,
+            speed: 2,
             direction: "none",
             random: true,
             straight: false,
@@ -616,33 +587,6 @@
           window.pJSDom[0].pJS.particles.line_linked.color = color;
         }
       }, 100);
-
-      // Cleanup on page unload
-      window.addEventListener("beforeunload", function () {
-        // Stop the video feed before leaving
-        const videoFeed = document.getElementById("videoFeed");
-        if (window.currentVideoFeed) {
-          window.currentVideoFeed.pause();
-          window.currentVideoFeed.src = "";
-          window.currentVideoFeed = null;
-        }
-
-        // Hide video feed and update UI
-        videoFeed.style.display = "none";
-        document.getElementById("prediction").textContent = "Camera stopped";
-        document.getElementById("startBtn").innerHTML =
-          '<i class="fas fa-video"></i> Start Camera';
-        document.querySelector(".status-indicator").style.background =
-          "#ff0055";
-        document.getElementById("videoStatus").textContent = "Stopped";
-
-        if (window.pJSDom && window.pJSDom[0]) {
-          window.pJSDom[0].pJS.fn.vendors.destroypJS();
-        }
-
-        // Send cleanup request to server
-        fetch("/video_feed", { method: "HEAD" }).catch(() => {});
-      });
     </script>
   </body>
 </html>
