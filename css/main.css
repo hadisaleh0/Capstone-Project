@@ -6,32 +6,21 @@
 }
 
 :root {
-  --primary-color: #ff6b6b; /* Coral Red */
-  --secondary-color: #4ecdc4; /* Turquoise */
-  --bg-color: #f7f7f7;
-  --text-color: #2c3e50; /* Dark Blue */
+  --primary-color: #00ff94;
+  --secondary-color: #00b8ff;
+  --text-color: #fff;
+  --hover-color: rgba(0, 255, 148, 0.15);
+  --border-color: rgba(255, 255, 255, 0.1);
 
   /* Light theme gradients */
-  --gradient-1-light: linear-gradient(45deg, #ff6b6b, #ffe66d);
-  --gradient-2-light: linear-gradient(135deg, #4ecdc4, #45b7af, #2e8b84);
-  --gradient-3-light: linear-gradient(to right, #ff6b6b, #ff8f70, #4ecdc4);
-  --gradient-4-light: linear-gradient(315deg, #45b7af, #4ecdc4);
-
-  /* Dark theme gradients */
-  --gradient-1-dark: linear-gradient(45deg, #2c3e50, #3498db);
-  --gradient-2-dark: linear-gradient(135deg, #2c3e50, #34495e, #2c3e50);
-  --gradient-3-dark: linear-gradient(to right, #2c3e50, #34495e, #3498db);
-  --gradient-4-dark: linear-gradient(315deg, #2c3e50, #3498db);
-
-  /* Default to light theme */
-  --gradient-1: var(--gradient-1-light);
-  --gradient-2: var(--gradient-2-light);
-  --gradient-3: var(--gradient-3-light);
-  --gradient-4: var(--gradient-4-light);
+  --gradient-1: linear-gradient(135deg, #00ff94, #00b8ff);
+  --gradient-2: linear-gradient(135deg, #00b8ff, #00ff94);
+  --gradient-3: linear-gradient(135deg, #00ff94, #00b8ff);
+  --gradient-4: linear-gradient(315deg, #00ff94, #00b8ff);
 
   /* New gradients inspired by Adobe color themes */
-  --gradient-5: linear-gradient(45deg, #ff6b6b, #ff8e53, #ffb347); /* Sunset */
-  --gradient-10: linear-gradient(to right, #2c3e50, #3498db); /* Ocean */
+  --gradient-5: linear-gradient(45deg, #00ff94, #00b8ff, #00ff94);
+  --gradient-10: linear-gradient(to right, #00b8ff, #00ff94);
 
   /* Updated shadows */
   --shadow-1: 0 4px 6px rgba(44, 62, 80, 0.1);
@@ -44,14 +33,12 @@ body {
   font-size: 16px;
   line-height: 1.5;
   color: var(--text-color);
-  background: linear-gradient(-45deg, #4ecdc4, #ff6b6b, #ffe66d, #6c5ce7);
-  background-size: 300% 300%;
-  animation: gradientBG 12s ease infinite;
+  background: #0a0a1f;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Add overlay pattern */
+/* Update overlay pattern */
 body::before {
   content: "";
   position: fixed;
@@ -59,15 +46,15 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(rgba(255, 255, 255, 0.15) 2px, transparent 2px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.15) 2px, transparent 2px);
-  background-size: 30px 30px;
+  background: linear-gradient(rgba(0, 255, 148, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 184, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
   animation: patternMove 15s linear infinite;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Add floating particles */
+/* Update floating particles */
 body::after {
   content: "";
   position: fixed;
@@ -77,18 +64,18 @@ body::after {
   height: 100%;
   background-image: radial-gradient(
       circle at 30% 20%,
-      rgba(78, 205, 196, 0.2) 0%,
-      rgba(78, 205, 196, 0) 60%
+      rgba(0, 255, 148, 0.15) 0%,
+      rgba(0, 255, 148, 0) 60%
     ),
     radial-gradient(
       circle at 70% 60%,
-      rgba(255, 107, 107, 0.2) 0%,
-      rgba(255, 107, 107, 0) 60%
+      rgba(0, 184, 255, 0.15) 0%,
+      rgba(0, 184, 255, 0) 60%
     ),
     radial-gradient(
       circle at 40% 80%,
-      rgba(255, 230, 109, 0.2) 0%,
-      rgba(255, 230, 109, 0) 60%
+      rgba(119, 0, 255, 0.15) 0%,
+      rgba(119, 0, 255, 0) 60%
     );
   animation: floatingParticles 8s ease-in-out infinite;
   pointer-events: none;
@@ -232,7 +219,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .sidebar.collapsed .sidebar-menu-item {
@@ -250,15 +237,14 @@ body::after {
 }
 
 .sidebar-menu-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateX(5px);
-  color: white;
+  background: var(--hover-color);
+  color: #00ff94;
 }
 
 .sidebar-menu-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: var(--hover-color);
+  color: #00ff94;
+  box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
   backdrop-filter: blur(10px);
 }
 
@@ -313,7 +299,7 @@ body::after {
 
 .start-live-detection:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
+  box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
 }
 
 /* Video container */
@@ -873,20 +859,20 @@ body::after {
 
 @keyframes patternMove {
   0% {
-    transform: translateX(0) translateY(0) rotate(0deg);
+    transform: translateX(0) translateY(0);
   }
   100% {
-    transform: translateX(30px) translateY(30px) rotate(5deg);
+    transform: translateX(-50px) translateY(-50px);
   }
 }
 
 @keyframes floatingParticles {
   0%,
   100% {
-    transform: translateY(0) scale(1) rotate(0deg);
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-30px) scale(1.2) rotate(5deg);
+    transform: translateY(-20px) scale(1.1);
   }
 }
 
@@ -1005,10 +991,10 @@ body::after {
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   overflow: hidden;
   min-width: 200px;
@@ -1034,16 +1020,20 @@ body::after {
   padding: 0.75rem 1rem;
   border: none;
   background: transparent;
-  color: var(--text-color);
+  color: #fff;
   cursor: pointer;
   transition: var(--transition);
   text-align: left;
   font-size: 0.95rem;
 }
 
+.file-input {
+  display: none;
+}
+
 .upload-option:hover {
-  background: var(--gradient-3);
-  color: white;
+  background: var(--hover-color);
+  color: #00ff94;
 }
 
 /* Dark mode adjustments */

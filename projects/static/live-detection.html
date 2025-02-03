@@ -421,21 +421,48 @@
         background: rgba(0, 255, 148, 0.15);
         color: #00ff94;
       }
+
+      .video-container {
+        position: relative;
+        margin: 20px auto;
+        max-width: 800px;
+      }
+      .sequence-caption {
+        background: rgba(0, 0, 0, 0.7);
+        color: #00ff94;
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 8px;
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.2rem;
+        text-align: center;
+        border: 1px solid rgba(0, 255, 148, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 255, 148, 0.2);
+      }
+      .sequence-label {
+        color: #fff;
+        opacity: 0.8;
+        font-size: 0.9rem;
+        margin-right: 10px;
+      }
     </style>
   </head>
   <body>
     <!-- Navigation -->
     <nav class="navbar">
-      <a href="/home.html" class="logo">
+      <a href="http://127.0.0.1:5000/home.html" class="logo">
         <i class="fas fa-sign-language"></i>
         SignLang AI
       </a>
       <div class="nav-links">
-        <a href="/home.html">Home</a>
-        <a href="/index.html">App</a>
-        <a href="http://127.0.0.1:5000" class="active">Live Detection</a>
-        <a href="/about.html">About</a>
-        <a href="/contact.html">Contact</a>
+        <a href="http://127.0.0.1:5000/home.html">Home</a>
+        <a href="http://127.0.0.1:5502/index.html">App</a>
+        <a href="http://127.0.0.1:5000/live-detection" class="active"
+          >Live Detection</a
+        >
+        <a href="http://127.0.0.1:5500/combined">Combined Model</a>
+        <a href="http://127.0.0.1:5000/about.html">About</a>
+        <a href="http://127.0.0.1:5000/contact.html">Contact</a>
       </div>
     </nav>
 
@@ -467,20 +494,16 @@
       </div>
 
       <div class="video-section">
-        <div id="debugInfo">
+        <div class="status">
           Video Status: <span id="videoStatus">Not started</span>
         </div>
-        <img id="videoFeed" src="/video_feed" style="display: none" />
+        <div class="video-container">
+          <img id="videoFeed" src="/video_feed" style="display: none" />
+        </div>
         <div class="controls">
           <button class="btn" id="startBtn">
-            <i class="fas fa-video"></i>
-            Start Camera
+            <i class="fas fa-video"></i> Start Camera
           </button>
-        </div>
-        <div class="prediction-box">
-          <div class="status-indicator"></div>
-          <span class="prediction" id="prediction">Waiting for camera...</span>
-          <div class="sequence-display" id="sequence">Sequence:</div>
         </div>
       </div>
     </div>
@@ -490,41 +513,34 @@
         .getElementById("startBtn")
         .addEventListener("click", function () {
           const videoFeed = document.getElementById("videoFeed");
-          const prediction = document.getElementById("prediction");
           const button = document.getElementById("startBtn");
-          const statusIndicator = document.querySelector(".status-indicator");
           const videoStatus = document.getElementById("videoStatus");
 
           if (videoFeed.style.display === "none") {
             // Start camera
             videoFeed.style.display = "block";
-            prediction.textContent = "Detecting signs...";
             button.innerHTML = '<i class="fas fa-stop"></i> Stop Camera';
-            statusIndicator.style.background = "#00ff94";
             videoStatus.textContent = "Starting...";
 
             // Start new video feed
-            videoFeed.src = "/video_feed?" + new Date().getTime();
-
-            // Add error handling for video feed
-            videoFeed.onerror = function () {
-              videoStatus.textContent = "Error loading video feed";
-              prediction.textContent = "Camera error";
-              statusIndicator.style.background = "#ff0055";
-            };
-
-            videoFeed.onload = function () {
+            try {
+              videoFeed.src = "/video_feed?" + new Date().getTime();
               videoStatus.textContent = "Video feed active";
-            };
+            } catch (error) {
+              videoStatus.textContent = "Error starting video feed";
+              console.error("Video feed error:", error);
+            }
           } else {
             // Stop camera
-            videoFeed.style.display = "none";
-            prediction.textContent = "Camera stopped";
-            button.innerHTML = '<i class="fas fa-video"></i> Start Camera';
-            statusIndicator.style.background = "#ff0055";
-            videoStatus.textContent = "Stopped";
-            // Stop video feed
-            videoFeed.src = "";
+            try {
+              videoFeed.style.display = "none";
+              button.innerHTML = '<i class="fas fa-video"></i> Start Camera';
+              videoStatus.textContent = "Stopped";
+              videoFeed.src = "";
+            } catch (error) {
+              videoStatus.textContent = "Error stopping video feed";
+              console.error("Stop error:", error);
+            }
           }
         });
 

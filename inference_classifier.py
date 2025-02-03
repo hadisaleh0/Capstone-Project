@@ -13,8 +13,13 @@ import os
 
 
 
-app = Flask(__name__, static_folder='projects/static')
-CORS(app)
+app = Flask(__name__, 
+    static_folder='projects/static',
+    static_url_path='/static')
+
+
+# Add the path to SkinWithColor templates
+SKIN_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), 'SkinWithColor', 'templates')
 
 # labels_dict = {0: 'A', 1: 'B', 2: 'L'}
 
@@ -277,15 +282,55 @@ def test_realtime_labels():
     cv2.destroyAllWindows()
 
 
+@app.route('/home.html')
+def home():
+    return send_from_directory('.', 'home.html')
+
+@app.route('/index.html')
+def app_page():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/about.html')
+def about():
+    return send_from_directory('.', 'about.html')
+
+@app.route('/contact.html')
+def contact():
+    return send_from_directory('.', 'contact.html')
+
+
+@app.route('/SkinWithColor.html')
+def skin_with_color():
+    return send_from_directory(SKIN_TEMPLATES_PATH, 'SkinWithColor.html')
+
+@app.route('/live-detection')
+def live_detection():
+    return send_from_directory('projects/static', 'live-detection.html')
+
 @app.route('/')
 def index():
     return send_from_directory('projects/static', 'live-detection.html')
 
 @app.route('/<path:filename>')
 def serve_static(filename):
-    if os.path.exists(os.path.join('projects/static', filename)):
-        return send_from_directory('projects/static', filename)
-    return send_from_directory('.', filename)
+    try:
+        # Check for js files
+        if filename.startswith('js/'):
+            return send_from_directory('.', filename)
+        # Check for css files
+        elif filename.startswith('css/'):
+            return send_from_directory('.', filename)
+        # Check in projects/static
+        elif os.path.exists(os.path.join('projects/static', filename)):
+            return send_from_directory('projects/static', filename)
+        # Check in SkinWithColor templates
+        elif os.path.exists(os.path.join(SKIN_TEMPLATES_PATH, filename)):
+            return send_from_directory(SKIN_TEMPLATES_PATH, filename)
+        # Finally check in root directory
+        return send_from_directory('.', filename)
+    except Exception as e:
+        print(f"Error serving {filename}: {str(e)}")
+        return str(e), 404
 
 @app.route('/video_feed')
 def video_feed():
@@ -293,5 +338,5 @@ def video_feed():
                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='127.0.0.1', port=5000, debug=False, threaded=True)
 
