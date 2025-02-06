@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload - Sign Language Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Orbitron:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: #0a0a1f;
+        color: #fff;
+        position: relative;
+        margin: 0;
+      }
+
+      /* Navbar Styles */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 20px 40px;
+        background: rgba(10, 10, 31, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.5rem;
+        color: #00ff94;
+        text-decoration: none;
+        text-shadow: 0 0 10px rgba(0, 255, 148, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
+
+      .nav-links a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        padding: 8px 16px;
+        border-radius: 8px;
+      }
+
+      .nav-links a:hover {
+        color: #00ff94;
+        background: rgba(0, 255, 148, 0.1);
+      }
+
+      .nav-links a.active {
+        background: rgba(0, 255, 148, 0.15);
+        color: #00ff94;
+      }
+
+      /* Upload Container */
+      .upload-container {
+        max-width: 800px;
+        margin: 120px auto 40px;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        z-index: 1;
+      }
+
+      .upload-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .upload-header h1 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #00ff94, #00b8ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .upload-btn {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #00ff94, #00b8ff);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .upload-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
+      }
+
+      /* Particles and Background */
+      #particles-js {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+
+      .animated-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.15;
+        filter: blur(60px);
+        animation: float 6s infinite;
+      }
+
+      .shape-1 {
+        width: 300px;
+        height: 300px;
+        background: #00ff94;
+        top: -150px;
+        left: -150px;
+      }
+
+      .shape-2 {
+        width: 400px;
+        height: 400px;
+        background: #0066ff;
+        bottom: -200px;
+        right: -200px;
+      }
+
+      .shape-3 {
+        width: 200px;
+        height: 200px;
+        background: #ff00ff;
+        top: 50%;
+        left: 30%;
+      }
+
+      .shape-4 {
+        width: 250px;
+        height: 250px;
+        background: #00ffff;
+        bottom: 30%;
+        right: 25%;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
+
+      /* Add new styles for processing controls */
+      .processing-controls {
+        margin: 20px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .processing-options {
+        margin: 20px 0;
+        text-align: left;
+        padding: 0 20px;
+        color: #fff;
+      }
+
+      .processing-options label {
+        margin-right: 15px;
+        cursor: pointer;
+      }
+
+      .model-select {
+        margin: 10px 0;
+        display: none;
+      }
+
+      select {
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      select option {
+        background: #0a0a1f;
+        color: #fff;
+      }
+
+      .result-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .image-box {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .image-box h2 {
+        color: #00ff94;
+        margin-bottom: 15px;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .image-box img {
+        max-width: 400px;
+        height: auto;
+        border-radius: 8px;
+      }
+
+      .download-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #00ff94, #00b8ff);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-top: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 255, 148, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+
+    <!-- Animated Background -->
+    <div class="animated-background">
+      <div class="floating-element shape-1"></div>
+      <div class="floating-element shape-2"></div>
+      <div class="floating-element shape-3"></div>
+      <div class="floating-element shape-4"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <a href="http://127.0.0.1:5502/home.html" class="logo">
+        <i class="fas fa-sign-language"></i>
+        SignLang AI
+      </a>
+      <div class="nav-links">
+        <a href="http://127.0.0.1:5502/home.html">Home</a>
+        <a href="http://127.0.0.1:5502/index.html">App</a>
+        <a href="http://127.0.0.1:5502/live-detection">Live Detection</a>
+        <a href="http://127.0.0.1:5500/SkinWithColor.html">Combined Model</a>
+        <a href="http://127.0.0.1:5000" class="active">Offline Detection</a>
+        <a href="http://127.0.0.1:5502/about.html">About</a>
+        <a href="http://127.0.0.1:5502/contact.html">Contact</a>
+      </div>
+    </nav>
+
+    <div class="upload-container">
+      <div class="upload-header">
+        <h1>Image Processing</h1>
+        <p>Upload and process your images with various detection models</p>
+      </div>
+
+      <form id="uploadForm" class="upload-form">
+        <input type="file" name="file" accept=".png,.jpg,.jpeg" required />
+        <button type="button" onclick="handleUpload()" class="submit-btn">
+          Upload Image
+        </button>
+      </form>
+
+      <div
+        class="processing-controls"
+        id="processingControls"
+        style="display: none"
+      >
+        <div class="processing-options">
+          <h3>Select Processing Type:</h3>
+          <input
+            type="radio"
+            id="gamma"
+            name="process_type"
+            value="gamma"
+            checked
+            onchange="toggleModelSelect(); processImage();"
+          />
+          <label for="gamma">Gamma Correction</label>
+
+          <input
+            type="radio"
+            id="skin"
+            name="process_type"
+            value="skin"
+            onchange="toggleModelSelect(); processImage();"
+          />
+          <label for="skin">Skin Detection</label>
+
+          <input
+            type="radio"
+            id="color"
+            name="process_type"
+            value="color"
+            onchange="toggleModelSelect(); processImage();"
+          />
+          <label for="color">Color Correction</label>
+
+          <div id="skinModelSelect" class="model-select">
+            <h3>Select Skin Detection Model:</h3>
+            <select name="skin_model" id="skinModel" onchange="processImage()">
+              <option value="RGB">RGB Model</option>
+              <option value="YCbCr">YCbCr Model</option>
+              <option value="HSV">HSV Model</option>
+            </select>
+          </div>
+
+          <div id="colorModelSelect" class="model-select">
+            <h3>Select Color Correction Model:</h3>
+            <select
+              name="color_model"
+              id="colorModel"
+              onchange="processImage()"
+            >
+              <option value="Stretch">Stretch & White Patch</option>
+              <option value="GrayWorld">Gray World</option>
+              <option value="WhitePatch">White Patch</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-container" id="resultContainer" style="display: none">
+        <div class="image-box">
+          <h2>Original Image</h2>
+          <img src="" alt="Original Image" id="originalImage" />
+        </div>
+        <div class="image-box">
+          <h2>Processed Image</h2>
+          <img src="" alt="Processed Image" id="processedImage" />
+          <br />
+          <a href="" download class="download-btn" id="downloadBtn">
+            Download Processed Image
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleModelSelect() {
+        const skinRadio = document.getElementById("skin");
+        const colorRadio = document.getElementById("color");
+        const skinModelSelect = document.getElementById("skinModelSelect");
+        const colorModelSelect = document.getElementById("colorModelSelect");
+
+        skinModelSelect.style.display = skinRadio.checked ? "block" : "none";
+        colorModelSelect.style.display = colorRadio.checked ? "block" : "none";
+      }
+
+      async function handleUpload() {
+        const form = document.getElementById("uploadForm");
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            document.getElementById("originalImage").src = data.original_image;
+            document.getElementById("processedImage").src =
+              data.processed_image;
+            document.getElementById("downloadBtn").href = data.processed_image;
+            document.getElementById("processingControls").style.display =
+              "block";
+            document.getElementById("resultContainer").style.display = "flex";
+            toggleModelSelect();
+          } else {
+            alert("Error uploading image: " + data.error);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error uploading image");
+        }
+      }
+
+      function processImage() {
+        const processType = document.querySelector(
+          'input[name="process_type"]:checked'
+        ).value;
+        const skinModel = document.getElementById("skinModel").value;
+        const colorModel = document.getElementById("colorModel").value;
+        const originalImage = document.getElementById("originalImage").src;
+        const filename = originalImage.split("/").pop();
+
+        fetch("/process", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            filename: filename,
+            process_type: processType,
+            skin_model: skinModel,
+            color_model: colorModel,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const processedImage = document.getElementById("processedImage");
+              const downloadBtn = document.getElementById("downloadBtn");
+              const timestamp = new Date().getTime();
+              processedImage.src = `${data.processed_image}?t=${timestamp}`;
+              downloadBtn.href = data.processed_image;
+            } else {
+              alert("Error processing image: " + data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error processing image");
+          });
+      }
+
+      // Initialize on page load
+      toggleModelSelect();
+
+      // Initialize particles
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#00ffff" },
+          shape: { type: "circle" },
+          opacity: {
+            value: 0.5,
+            random: true,
+            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false },
+          },
+          size: {
+            value: 3,
+            random: true,
+            anim: { enable: true, speed: 2, size_min: 0.1, sync: false },
+          },
+          line_linked: {
+            enable: true,
+            distance: 150,
+            color: "#00ffff",
+            opacity: 0.2,
+            width: 1,
+          },
+          move: {
+            enable: true,
+            speed: 2,
+            direction: "none",
+            random: true,
+            straight: false,
+            out_mode: "out",
+            bounce: false,
+            attract: { enable: true, rotateX: 600, rotateY: 1200 },
+          },
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+            resize: true,
+          },
+          modes: {
+            repulse: { distance: 100, duration: 0.4 },
+            push: { particles_nb: 4 },
+          },
+        },
+        retina_detect: true,
+      });
+
+      // Dynamic color change for particles
+      let hue = 0;
+      setInterval(() => {
+        hue = (hue + 1) % 360;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        if (window.pJSDom && window.pJSDom[0]) {
+          window.pJSDom[0].pJS.particles.color.value = color;
+          window.pJSDom[0].pJS.particles.line_linked.color = color;
+        }
+      }, 100);
+    </script>
+  </body>
+</html>
