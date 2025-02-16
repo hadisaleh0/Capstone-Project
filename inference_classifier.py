@@ -100,7 +100,7 @@ SKIN_TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), 'SkinWithColor', '
 
 def generate_frames():
     cap = cv2.VideoCapture(0)
-    labels_handler = SignLanguageLabels(min_time_between_changes=0.5)
+    labels_handler = SignLanguageLabels(min_time_between_changes=10)
     model = labels_handler.model
     
     mp_hands = mp.solutions.hands
@@ -177,7 +177,7 @@ def generate_frames():
 
 
 def test_realtime_labels():
-    labels_handler = SignLanguageLabels(min_time_between_changes=0.5)
+    labels_handler = SignLanguageLabels(min_time_between_changes=10)
     model = labels_handler.model
 
     cap = cv2.VideoCapture(0)

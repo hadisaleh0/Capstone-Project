@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Add parent directory to Python path to find gamma_correction.py
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from flask import Flask, render_template, Response, send_from_directory
 from flask_cors import CORS
 import cv2
@@ -6,12 +12,15 @@ from SkinDetection import HSV_Model, RGB_Model, YCBCR_Model
 from ThreeModels import (stretch_and_wp_correction, 
                         modified_gray_world_correction, 
                         white_patch_correction)
-import os
+from gamma_correction import apply_gamma_correction
 
 app = Flask(__name__, 
     static_folder='static',
     static_url_path='/static')
+CORS(app)  # Enable CORS for all routes
 
+# Global variable for gamma correction toggle
+gamma_enabled = False
 
 # Global variables for model selection
 skin_models = {
@@ -21,6 +30,7 @@ skin_models = {
 }
 
 color_models = {
+    'none': ('None', lambda x: x),  # Add 'none' option that returns original frame
     'stretch': ('Stretch & WP', stretch_and_wp_correction),
     'gray': ('Gray World', modified_gray_world_correction),
     'white': ('White Patch', white_patch_correction)
@@ -28,7 +38,7 @@ color_models = {
 
 # Default models
 current_skin_model = ('HSV', HSV_Model)
-current_color_model = ('Stretch & WP', stretch_and_wp_correction)
+current_color_model = ('None', lambda x: x)  # Default to no color correction
 
 def ensure_3channel_mask(mask):
     """Ensure mask is 3-channel BGR format"""
@@ -64,6 +74,10 @@ def generate_frames():
 
         # Apply color correction
         corrected_frame = current_color_model[1](frame)
+        
+        # Apply gamma correction to color-corrected frame if enabled
+        if gamma_enabled:
+            corrected_frame = apply_gamma_correction(corrected_frame)
 
         # Get skin detection masks
         skin_mask_original = current_skin_model[1](frame)
@@ -94,15 +108,21 @@ def generate_frames():
 
         # Add labels
         cv2.putText(skin_mask_original, f"Skin: {current_skin_model[0]}", 
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        cv2.putText(skin_mask_corrected_sub, f"Color: {current_color_model[0]}, Skin: {current_skin_model[0]}", 
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    (5, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 1)
+        
+        label = f"Color: {current_color_model[0]}"
+        if gamma_enabled:
+            label += "+Gamma"
+        label += f", Skin: {current_skin_model[0]}"
+        cv2.putText(skin_mask_corrected, label,
+                    (5,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 0)
 
         # Create combined display
         top_row = np.hstack((frame, corrected_frame))
-        bottom_row = np.hstack((skin_mask_original, skin_mask_corrected_sub))
+        bottom_row = np.hstack((skin_mask_original, skin_mask_corrected))
+
         # Resize the combined display
-        combined_display = cv2.resize(np.vstack((top_row, bottom_row)), (640, 360))
+        combined_display = cv2.resize(np.vstack((top_row, bottom_row)), (720, 480))
 
         # Convert to jpg for streaming
         ret, buffer = cv2.imencode('.jpg', combined_display)
@@ -148,6 +168,12 @@ def change_model(model_type, model_name):
     elif model_type == 'color':
         if model_name in color_models:
             current_color_model = color_models[model_name]
+    return 'OK'
+
+@app.route('/toggle_gamma/<state>')
+def toggle_gamma(state):
+    global gamma_enabled
+    gamma_enabled = (state.lower() == 'true')
     return 'OK'
 
 if __name__ == '__main__':

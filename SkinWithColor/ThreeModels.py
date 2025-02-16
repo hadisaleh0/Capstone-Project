@@ -123,36 +123,3 @@ def white_patch_correction(frame):
     corrected_frame = (corrected_frame * 255).astype(np.uint8)
     
     return corrected_frame
-
-# cap = cv2.VideoCapture(0)
-
-# if not cap.isOpened():
-#     print("Error: Could not open webcam.")
-#     exit()
-
-# # Process the video stream
-# while True:
-#     ret, frame = cap.read()
-    
-#     if not ret:
-#         print("Error: Could not read frame.")
-#         break
-#     # Apply White Patch correction to the current frame
-#     # corrected_frame = white_patch_correction(frame)
-#     # K_size = 7
-#     # blur_frame = cv2.medianBlur(corrected_frame,K_size)
-    
-#     # corrected_frame = modified_gray_world_correction(frame)
-#     corrected_frame = stretch_and_wp_correction(frame)
-#     # Display the original and corrected frames
-#     cv2.imshow('Original', frame)
-#     cv2.imshow('White Patch Corrected', corrected_frame)
-#     # cv2.imshow('White Patch Corrected with blur', blur_frame)
-    
-#     # Exit when 'q' is pressed
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
-
-# # Release the webcam and close all windows
-# cap.release()
-# cv2.destroyAllWindows()

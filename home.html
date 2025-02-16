@@ -43,7 +43,7 @@
         justify-content: space-between;
         align-items: center;
         z-index: 1000;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
       }
 
       .logo {
@@ -52,11 +52,19 @@
         color: #00ff94;
         text-decoration: none;
         text-shadow: 0 0 10px rgba(0, 255, 148, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        font-size: 1.8rem;
       }
 
       .nav-links {
         display: flex;
         gap: 30px;
+        position: relative;
       }
 
       .nav-links a {
@@ -66,11 +74,34 @@
         transition: all 0.3s ease;
         padding: 8px 16px;
         border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .nav-links a::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: #00ff94;
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::before {
+        width: 80%;
       }
 
       .nav-links a:hover {
         color: #00ff94;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 255, 148, 0.1);
+      }
+
+      .nav-links a.active {
+        background: rgba(0, 255, 148, 0.15);
+        color: #00ff94;
       }
 
       /* Hero Section */
@@ -207,18 +238,17 @@
 
     <!-- Navigation -->
     <nav class="navbar">
-      <a href="home.html" class="logo">
+      <a href="./home.html" class="logo">
         <i class="fas fa-sign-language"></i>
         SignLang AI
       </a>
       <div class="nav-links">
-        <a href="home.html" class="active">Home</a>
-        <a href="index.html">App</a>
+        <a href="./home.html" class="active">Home</a>
         <a href="http://127.0.0.1:5502/live-detection">Live Detection</a>
-        <a href="http://127.0.0.1:5500/SkinWithColor.html">Combined Model</a>
+        <a href="http://127.0.0.1:5502/SkinWithColor.html">Combined Model</a>
         <a href="http://127.0.0.1:5000">Offline Detection</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
+        <a href="http://127.0.0.1:5502/about.html">About</a>
+        <a href="http://127.0.0.1:5502/contact.html">Contact</a>
       </div>
     </nav>
 
@@ -233,7 +263,7 @@
           need to communicate with the deaf community, our tools make it easier
           than ever.
         </p>
-        <a href="index.html" class="cta-button"
+        <a href="http://127.0.0.1:5502/live-detection" class="cta-button"
           >Get Started <i class="fas fa-arrow-right"></i
         ></a>
       </div>
